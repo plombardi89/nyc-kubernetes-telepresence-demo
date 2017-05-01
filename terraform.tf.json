@@ -1,0 +1,44 @@
+{
+  "provider": {
+    "aws": {
+      "region": "us-east-1"
+    }
+  },
+
+  "module": {
+    "data_network": {
+      "source"     : "github.com/plombardi89/fabricbuilder//src/terraform/network-data",
+      "name"       : "example-data",
+      "cidr_block" : "12.0.0.0/16"
+    },
+
+    "postgresql": {
+      "source"          : "github.com/plombardi89/fabricbuilder//src/terraform/rds-pgsql-standalone",
+      "vpc_id"          : "${module.data_network.id}",
+      "security_groups" : ["${module.data_network.main_security_group}"],
+      "subnets"         : ["${module.data_network.internal_subnets}"]
+    }
+  },
+
+  "resource": {
+    "aws_vpc_peering_connection": {
+      "data_to_cluster": {
+        "auto_accept" : true,
+        "peer_vpc_id" : "vpc-d09174a9",
+        "vpc_id"      : "${module.data_network.id}"
+      }
+    }
+  },
+
+  "output": {
+    "data_network_id"                  : { "value": "${module.data_network.id}" },
+    "data_network_cidr_block"          : { "value": "${module.data_network.cidr_block}" },
+    "data_network_external_subnets"    : { "value": "${module.data_network.external_subnets}" },
+    "data_network_internal_subnets"    : { "value": "${module.data_network.internal_subnets}" },
+    "data_network_main_security_group" : { "value": "${module.data_network.main_security_group}" },
+
+    "pg_username" : { "value": "${module.postgresql.db_username}" },
+    "pg_password" : { "value": "${module.postgresql.db_password}" },
+    "pg_address" : { "value": "${module.postgresql.db_address}" }
+  }
+}

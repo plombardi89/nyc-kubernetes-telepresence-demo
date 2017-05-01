@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/hello/<name>', methods=['GET'])
 def hello(name):
-    return jsonify(message="Hello NYC! This service is running on my local PC! WAHOO!".format(name),
+    return jsonify(message="Hello NYC!".format(name),
                    time=int(round(time.time() * 1000)))
 
 
